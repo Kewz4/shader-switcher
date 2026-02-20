@@ -3,7 +3,7 @@ package com.yourname.shaderpackswap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.network.chat.Component;
@@ -11,7 +11,7 @@ import net.minecraft.server.packs.repository.Pack;
 
 import java.util.List;
 
-public class PackListWidget extends ObjectSelectionList<PackListWidget.PackEntry> {
+public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.PackEntry> {
 
     public PackListWidget(Minecraft client, int width, int height, int y, int itemHeight) {
         super(client, width, height, y, itemHeight);
@@ -29,7 +29,7 @@ public class PackListWidget extends ObjectSelectionList<PackListWidget.PackEntry
         super.addEntry(entry);
     }
 
-    public static class PackEntry extends ObjectSelectionList.Entry<PackEntry> {
+    public static class PackEntry extends ContainerObjectSelectionList.Entry<PackEntry> {
         private final Minecraft client;
         private final Pack pack;
         private final SwapConfig config;
@@ -79,26 +79,24 @@ public class PackListWidget extends ObjectSelectionList<PackListWidget.PackEntry
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
-            guiGraphics.drawString(client.font, pack.getTitle(), left + 10, top + 2, 0xFFFFFF);
-            guiGraphics.drawString(client.font, pack.getDescription(), left + 10, top + 14, 0x888888);
+        public void renderContent(GuiGraphics guiGraphics, int mouseX, int mouseY, boolean hovering, float partialTick) {
+            // Assumed matrix translation
+            guiGraphics.drawString(client.font, pack.getTitle(), 10, 2, 0xFFFFFF);
+            guiGraphics.drawString(client.font, pack.getDescription(), 10, 14, 0x888888);
 
-            this.toggleButton.setX(left + width - 105);
-            this.toggleButton.setY(top + (height - 20) / 2);
+            this.toggleButton.setX(275);
+            this.toggleButton.setY(8);
             this.toggleButton.render(guiGraphics, mouseX, mouseY, partialTick);
         }
 
         @Override
-        public Component getNarration() {
-            return pack.getTitle();
+        public List<? extends GuiEventListener> children() {
+            return java.util.List.of(this.toggleButton);
         }
 
         @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (this.toggleButton.mouseClicked(mouseX, mouseY, button)) {
-                return true;
-            }
-            return super.mouseClicked(mouseX, mouseY, button);
+        public List<? extends NarratableEntry> narratables() {
+            return java.util.List.of(this.toggleButton);
         }
     }
 }
