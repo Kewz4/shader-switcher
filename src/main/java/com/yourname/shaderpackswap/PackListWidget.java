@@ -17,7 +17,7 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
         super(client, width, height, y, itemHeight);
     }
 
-    @Override
+    // Removed @Override because it doesn't override anything in 1.21.11
     public int getRowWidth() {
         return 380;
     }
@@ -27,7 +27,6 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
         return this.getX() + this.width - 6;
     }
 
-    // Expose addEntry via a custom public method
     public void addEntryToWidget(PackEntry entry) {
         super.addEntry(entry);
     }
@@ -83,15 +82,11 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
 
         @Override
         public void renderContent(GuiGraphics guiGraphics, int x, int y, boolean hovering, float partialTick) {
-            // Title
             guiGraphics.drawString(client.font, pack.getTitle(), x + 10, y + 2, 0xFFFFFF);
-
-            // Description (truncated)
             guiGraphics.drawString(client.font, pack.getDescription(), x + 10, y + 14, 0x888888);
 
-            // Button
             this.toggleButton.setX(x + 380 - 105);
-            this.toggleButton.setY(y + (36 - 20) / 2); // 36 is item height
+            this.toggleButton.setY(y + (36 - 20) / 2);
             this.toggleButton.render(guiGraphics, 0, 0, partialTick);
         }
 

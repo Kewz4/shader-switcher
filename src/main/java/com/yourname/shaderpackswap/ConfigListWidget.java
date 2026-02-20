@@ -16,7 +16,7 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
         super(client, width, height, y, itemHeight);
     }
 
-    @Override
+    // Removed @Override because it doesn't override anything in 1.21.11
     public int getRowWidth() {
         return 400;
     }
@@ -26,7 +26,6 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
         return this.getX() + this.width - 6;
     }
 
-    // Expose addEntry via a custom public method to avoid override conflicts
     public void addEntryToWidget(Entry entry) {
         super.addEntry(entry);
     }
@@ -41,12 +40,8 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
             this.text = text;
         }
 
-        // Renamed to renderContent to match abstract method in 1.21.11+
         @Override
         public void renderContent(GuiGraphics guiGraphics, int x, int y, boolean hovering, float partialTick) {
-            // Centered text
-            // Note: x is the left position of the row? No, x,y is usually the top-left of the entry.
-            // Using getRowWidth() / 2 + x might center it relative to row.
             guiGraphics.drawCenteredString(Minecraft.getInstance().font, this.text, x + 200, y + 2, 0xFFFFFF);
         }
 
