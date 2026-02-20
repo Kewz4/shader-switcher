@@ -15,6 +15,11 @@ public class ConfigLoader {
     public static SwapConfig load() {
         if (!Files.exists(CONFIG_PATH)) {
             SwapConfig defaults = new SwapConfig();
+
+            // Default packs to disable when shaders are turned ON
+            defaults.packsToDisableWhenShadersOn.add("file/§aBiomeBloom§8.zip");
+            defaults.packsToDisableWhenShadersOn.add("file/Benigamer'enhanced visuals 1.9.zip");
+
             save(defaults);
             System.out.println("[ShaderPackSwap] Config not found, created default at: " + CONFIG_PATH);
             System.out.println("[ShaderPackSwap] Edit it to add your resource pack names (e.g. \"file/MyPack.zip\")");
