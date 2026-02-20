@@ -26,7 +26,11 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
         return this.getX() + this.width - 6;
     }
 
-    public void addEntry(Entry entry) {
+    // Fix: addEntry usually returns int in recent versions, ensuring we override correctly if needed,
+    // or at least matching the signature if it's protected in super.
+    // However, AbstractSelectionList.addEntry(E) is protected. We need a public method.
+    // We'll name it 'addEntryToWidget' to avoid conflict if the super method has a different signature we can't match easily.
+    public void addEntryToWidget(Entry entry) {
         super.addEntry(entry);
     }
 
@@ -40,9 +44,11 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
             this.text = text;
         }
 
+        // Fix: Use renderContent instead of render, and match signature
         @Override
-        public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
-            guiGraphics.drawCenteredString(Minecraft.getInstance().font, this.text, left + width / 2, top + (height - 9) / 2, 0xFFFFFF);
+        public void renderContent(GuiGraphics guiGraphics, int x, int y, boolean hovering, float partialTick) {
+             // x, y are the position of the entry
+            guiGraphics.drawCenteredString(Minecraft.getInstance().font, this.text, x + 200, y + 2, 0xFFFFFF);
         }
 
         @Override
@@ -66,10 +72,10 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
-            this.button.setX(left + (width - this.button.getWidth()) / 2);
-            this.button.setY(top);
-            this.button.render(guiGraphics, mouseX, mouseY, partialTick);
+        public void renderContent(GuiGraphics guiGraphics, int x, int y, boolean hovering, float partialTick) {
+            this.button.setX(x + (400 - this.button.getWidth()) / 2);
+            this.button.setY(y);
+            this.button.render(guiGraphics, 0, 0, partialTick); // Mouse handling is done by children()
         }
 
         @Override

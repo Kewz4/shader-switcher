@@ -38,7 +38,8 @@ public class PackSelectionScreen extends Screen {
         for (Pack pack : packs) {
             // Filter out internal/mod packs
             if (shouldShowPack(pack)) {
-                this.list.addEntry(new PackListWidget.PackEntry(this.minecraft, pack, config, shaderName));
+                // Use the public wrapper method
+                this.list.addEntryToWidget(new PackListWidget.PackEntry(this.minecraft, pack, config, shaderName));
             }
         }
 
@@ -49,19 +50,10 @@ public class PackSelectionScreen extends Screen {
     }
 
     private boolean shouldShowPack(Pack pack) {
-        // isFixed() might not exist in all mappings, use isRequired() if possible or skip.
-        // In 1.21 official mappings, isRequired() is common for non-selectable packs.
         if (pack.isRequired()) return false;
-
-        if (pack.getId().equals("vanilla")) return false; // Usually don't toggle vanilla base
-
-        // Filter out mods using PackSource or ID
-        // PackSource.BUILT_IN usually implies mod resources
+        if (pack.getId().equals("vanilla")) return false;
         if (pack.getPackSource() == PackSource.BUILT_IN) return false;
-
-        // Extra check for common mod indicators if PackSource isn't enough
         if (pack.getId().equals("fabric") || pack.getId().equals("modmenu")) return false;
-
         return true;
     }
 

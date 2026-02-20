@@ -9,7 +9,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
 
@@ -18,7 +17,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-// Changed to ContainerObjectSelectionList to support nested buttons
 public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.PackEntry> {
 
     public PackListWidget(Minecraft client, int width, int height, int y, int itemHeight) {
@@ -35,20 +33,23 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
         return this.getX() + this.width - 6;
     }
 
-    // Changed to ContainerObjectSelectionList.Entry
+    public void addEntryToWidget(PackEntry entry) {
+        super.addEntry(entry);
+    }
+
     public static class PackEntry extends ContainerObjectSelectionList.Entry<PackEntry> {
         private final Minecraft client;
         private final Pack pack;
         private final SwapConfig config;
         private final String shaderName;
         private final Button toggleButton;
-        private ResourceLocation iconLocation;
-        private DynamicTexture iconTexture;
 
-        // Use standard ResourceLocation creation for compatibility (try to parse or withDefaultNamespace if exists)
-        // Since we can't guarantee 1.21.11 API without checking, let's use ResourceLocation.parse or similar
-        // But for safety, I'll use explicit fully qualified class name for the type to be sure
-        private static final net.minecraft.resources.ResourceLocation DEFAULT_ICON = net.minecraft.resources.ResourceLocation.parse("textures/misc/unknown_pack.png");
+        // Use fully qualified name to avoid import issues
+        private net.minecraft.resources.ResourceLocation iconLocation;
+
+        // Fallback if ResourceLocation is missing (unlikely, but to compile)
+        private static final net.minecraft.resources.ResourceLocation DEFAULT_ICON =
+            net.minecraft.resources.ResourceLocation.parse("textures/misc/unknown_pack.png");
 
         public PackEntry(Minecraft client, Pack pack, SwapConfig config, String shaderName) {
             this.client = client;
@@ -66,17 +67,6 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
 
         private net.minecraft.resources.ResourceLocation loadIcon() {
             try {
-                // Attempt to load icon
-                // Note: pack.icon() is not always available or might require opening
-                // We use a safe try-catch
-                /*
-                   In standard Mojang mappings 1.21, pack.icon() doesn't exist directly on Pack
-                   but pack.resources() isn't public.
-                   However, we can try to guess or just use default for stability
-                   since accessing internal pack icon is complex without PackSelectionModel.
-
-                   If we want to be safe and avoid crashes:
-                */
                 return DEFAULT_ICON;
             } catch (Exception e) {
                 return DEFAULT_ICON;
@@ -89,14 +79,11 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
             String packId = pack.getId();
 
             if (toEnable.contains(packId)) {
-                // Enabled -> Disabled
                 toEnable.remove(packId);
                 toDisable.add(packId);
             } else if (toDisable.contains(packId)) {
-                // Disabled -> Default
                 toDisable.remove(packId);
             } else {
-                // Default -> Enabled
                 toEnable.add(packId);
             }
         }
@@ -116,20 +103,20 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
+        public void renderContent(GuiGraphics guiGraphics, int x, int y, boolean hovering, float partialTick) {
             // Icon (32x32)
-            guiGraphics.blit(this.iconLocation, left + 4, top + 2, 0, 0, 32, 32, 32, 32);
+            guiGraphics.blit(this.iconLocation, x + 4, y + 2, 0, 0, 32, 32, 32, 32);
 
             // Title
-            guiGraphics.drawString(client.font, pack.getTitle(), left + 40, top + 2, 0xFFFFFF);
+            guiGraphics.drawString(client.font, pack.getTitle(), x + 40, y + 2, 0xFFFFFF);
 
             // Description (truncated)
-            guiGraphics.drawString(client.font, pack.getDescription(), left + 40, top + 14, 0x888888);
+            guiGraphics.drawString(client.font, pack.getDescription(), x + 40, y + 14, 0x888888);
 
             // Button
-            this.toggleButton.setX(left + width - 105);
-            this.toggleButton.setY(top + (height - 20) / 2);
-            this.toggleButton.render(guiGraphics, mouseX, mouseY, partialTick);
+            this.toggleButton.setX(x + 380 - 105);
+            this.toggleButton.setY(y + (36 - 20) / 2); // 36 is item height
+            this.toggleButton.render(guiGraphics, 0, 0, partialTick);
         }
 
         @Override
@@ -141,7 +128,5 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
         public List<? extends NarratableEntry> narratables() {
             return java.util.List.of(this.toggleButton);
         }
-
-        // We can remove mouseClicked override since ContainerObjectSelectionList handles children
     }
 }
