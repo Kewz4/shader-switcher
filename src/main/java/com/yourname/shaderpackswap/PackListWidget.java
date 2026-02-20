@@ -17,10 +17,7 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
         super(client, width, height, y, itemHeight);
     }
 
-    // Attempt to set width if possible via constructor or other means?
-    // Since we can't override, we assume defaults or layout handling.
-
-    @Override
+    // Removed @Override because it doesn't override anything in 1.21.11
     protected int getScrollbarPosition() {
         return this.getX() + this.width - 6;
     }
