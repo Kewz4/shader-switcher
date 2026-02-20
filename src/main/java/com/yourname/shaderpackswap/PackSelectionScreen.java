@@ -34,7 +34,7 @@ public class PackSelectionScreen extends Screen {
 
         for (Pack pack : packs) {
             if (shouldShowPack(pack)) {
-                this.list.addEntry(new PackListWidget.PackEntry(this.minecraft, pack, config, shaderName));
+                this.list.addEntryToWidget(new PackListWidget.PackEntry(this.minecraft, pack, config, shaderName));
             }
         }
 

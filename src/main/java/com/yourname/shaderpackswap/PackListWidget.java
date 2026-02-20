@@ -27,9 +27,9 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
         return this.getX() + this.width - 6;
     }
 
-    @Override
-    public int addEntry(PackEntry entry) {
-        return super.addEntry(entry);
+    // Expose addEntry via a custom public method
+    public void addEntryToWidget(PackEntry entry) {
+        super.addEntry(entry);
     }
 
     public static class PackEntry extends ContainerObjectSelectionList.Entry<PackEntry> {
@@ -82,13 +82,17 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
-            guiGraphics.drawString(client.font, pack.getTitle(), left + 10, top + 2, 0xFFFFFF);
-            guiGraphics.drawString(client.font, pack.getDescription(), left + 10, top + 14, 0x888888);
+        public void renderContent(GuiGraphics guiGraphics, int x, int y, boolean hovering, float partialTick) {
+            // Title
+            guiGraphics.drawString(client.font, pack.getTitle(), x + 10, y + 2, 0xFFFFFF);
 
-            this.toggleButton.setX(left + width - 105);
-            this.toggleButton.setY(top + (height - 20) / 2);
-            this.toggleButton.render(guiGraphics, mouseX, mouseY, partialTick);
+            // Description (truncated)
+            guiGraphics.drawString(client.font, pack.getDescription(), x + 10, y + 14, 0x888888);
+
+            // Button
+            this.toggleButton.setX(x + 380 - 105);
+            this.toggleButton.setY(y + (36 - 20) / 2); // 36 is item height
+            this.toggleButton.render(guiGraphics, 0, 0, partialTick);
         }
 
         @Override

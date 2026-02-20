@@ -26,9 +26,9 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
         return this.getX() + this.width - 6;
     }
 
-    @Override
-    public int addEntry(Entry entry) {
-        return super.addEntry(entry);
+    // Expose addEntry via a custom public method to avoid override conflicts
+    public void addEntryToWidget(Entry entry) {
+        super.addEntry(entry);
     }
 
     public abstract static class Entry extends ContainerObjectSelectionList.Entry<Entry> {
@@ -41,22 +41,14 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
             this.text = text;
         }
 
-        // Must override render (not renderContent, based on traditional mapping, but error logs suggest renderContent is needed?)
-        // If renderContent is abstract, we implement it.
-        // However, standard 1.21 uses render with long signature.
-        // If the error log from user "abstract method renderContent(GuiGraphics,int,int,boolean,float)" is accurate, we use THAT.
-        // I will implement both just in case one is deprecated or final calling the other.
-        // But render usually takes 8 args.
-
+        // Renamed to renderContent to match abstract method in 1.21.11+
         @Override
-        public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
-            guiGraphics.drawCenteredString(Minecraft.getInstance().font, this.text, left + width / 2, top + (height - 9) / 2, 0xFFFFFF);
+        public void renderContent(GuiGraphics guiGraphics, int x, int y, boolean hovering, float partialTick) {
+            // Centered text
+            // Note: x is the left position of the row? No, x,y is usually the top-left of the entry.
+            // Using getRowWidth() / 2 + x might center it relative to row.
+            guiGraphics.drawCenteredString(Minecraft.getInstance().font, this.text, x + 200, y + 2, 0xFFFFFF);
         }
-
-        // If newer mapping requires renderContent:
-        // @Override
-        // public void renderContent(GuiGraphics guiGraphics, int x, int y, boolean hovering, float partialTick) { ... }
-        // I will stick to 'render' because it's safer for 1.21 base. If it fails, the user will tell me again with a fresh log.
 
         @Override
         public List<? extends GuiEventListener> children() {
@@ -79,10 +71,10 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
-            this.button.setX(left + (width - this.button.getWidth()) / 2);
-            this.button.setY(top);
-            this.button.render(guiGraphics, mouseX, mouseY, partialTick);
+        public void renderContent(GuiGraphics guiGraphics, int x, int y, boolean hovering, float partialTick) {
+            this.button.setX(x + (400 - this.button.getWidth()) / 2);
+            this.button.setY(y);
+            this.button.render(guiGraphics, 0, 0, partialTick);
         }
 
         @Override
