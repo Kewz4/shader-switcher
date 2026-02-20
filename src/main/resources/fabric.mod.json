@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "shaderpackswap",
+  "version": "1.0.0",
+  "name": "ShaderPack Swap",
+  "description": "Automatically swaps resource packs when Iris shaders are toggled",
+  "authors": ["yourname"],
+  "environment": "client",
+  "entrypoints": {
+    "main": ["com.yourname.shaderpackswap.ShaderPackSwapMod"],
+    "client": ["com.yourname.shaderpackswap.ShaderPackSwapClient"]
+  },
+  "mixins": [],
+  "depends": {
+    "fabricloader": ">=0.18.1",
+    "fabric-api": "*",
+    "minecraft": "1.21.11",
+    "iris": "*"
+  }
+}
