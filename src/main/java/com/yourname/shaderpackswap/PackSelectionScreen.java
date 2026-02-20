@@ -97,7 +97,6 @@ public class PackSelectionScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFF);
         guiGraphics.drawCenteredString(this.font, "Page " + (page + 1), this.width / 2, this.height - 70, 0xAAAAAA);
