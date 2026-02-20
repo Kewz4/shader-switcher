@@ -17,12 +17,10 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
         super(client, width, height, y, itemHeight);
     }
 
-    // Removed @Override because it doesn't override anything in 1.21.11
-    public int getRowWidth() {
-        return 380;
-    }
+    // Attempt to set width if possible via constructor or other means?
+    // Since we can't override, we assume defaults or layout handling.
 
-    // Removed @Override because it might not override anything in 1.21.11
+    @Override
     protected int getScrollbarPosition() {
         return this.getX() + this.width - 6;
     }
@@ -81,13 +79,16 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
         }
 
         @Override
-        public void renderContent(GuiGraphics guiGraphics, int x, int y, boolean hovering, float partialTick) {
-            guiGraphics.drawString(client.font, pack.getTitle(), x + 10, y + 2, 0xFFFFFF);
-            guiGraphics.drawString(client.font, pack.getDescription(), x + 10, y + 14, 0x888888);
+        public void renderContent(GuiGraphics guiGraphics, int mouseX, int mouseY, boolean hovering, float partialTick) {
+            // Use relative coordinates!
+            // x, y args are effectively mouseX, mouseY
 
-            this.toggleButton.setX(x + 380 - 105);
-            this.toggleButton.setY(y + (36 - 20) / 2);
-            this.toggleButton.render(guiGraphics, 0, 0, partialTick);
+            guiGraphics.drawString(client.font, pack.getTitle(), 10, 2, 0xFFFFFF);
+            guiGraphics.drawString(client.font, pack.getDescription(), 10, 14, 0x888888);
+
+            this.toggleButton.setX(275); // Fixed relative position (380 width - 105)
+            this.toggleButton.setY(8);   // Center in 36 height (36-20)/2 = 8
+            this.toggleButton.render(guiGraphics, mouseX, mouseY, partialTick);
         }
 
         @Override
