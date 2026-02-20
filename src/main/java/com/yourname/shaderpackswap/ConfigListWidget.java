@@ -3,14 +3,15 @@ package com.yourname.shaderpackswap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.ContainerObjectSelectionList;
+import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
-public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWidget.Entry> {
+// Switched to ObjectSelectionList to avoid ContainerObjectSelectionList issues with render/renderContent
+public class ConfigListWidget extends ObjectSelectionList<ConfigListWidget.Entry> {
 
     public ConfigListWidget(Minecraft client, int width, int height, int y, int itemHeight) {
         super(client, width, height, y, itemHeight);
@@ -28,10 +29,7 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
         super.addEntry(entry);
     }
 
-    public abstract static class Entry extends ContainerObjectSelectionList.Entry<Entry> {
-        @Override
-        public void renderContent(GuiGraphics guiGraphics, int x, int y, boolean hovering, float partialTick) {
-        }
+    public abstract static class Entry extends ObjectSelectionList.Entry<Entry> {
     }
 
     public static class CategoryEntry extends Entry {
@@ -47,13 +45,13 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
         }
 
         @Override
-        public List<? extends GuiEventListener> children() {
-            return List.of();
+        public Component getNarration() {
+            return text;
         }
 
         @Override
-        public List<? extends NarratableEntry> narratables() {
-            return List.of();
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            return false;
         }
     }
 
@@ -74,13 +72,16 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
         }
 
         @Override
-        public List<? extends GuiEventListener> children() {
-            return List.of(this.button);
+        public Component getNarration() {
+            return button.getMessage();
         }
 
         @Override
-        public List<? extends NarratableEntry> narratables() {
-            return List.of(this.button);
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            if (this.button.mouseClicked(mouseX, mouseY, button)) {
+                return true;
+            }
+            return super.mouseClicked(mouseX, mouseY, button);
         }
     }
 }

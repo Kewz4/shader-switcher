@@ -3,7 +3,7 @@ package com.yourname.shaderpackswap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.ContainerObjectSelectionList;
+import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.network.chat.Component;
@@ -11,7 +11,7 @@ import net.minecraft.server.packs.repository.Pack;
 
 import java.util.List;
 
-public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.PackEntry> {
+public class PackListWidget extends ObjectSelectionList<PackListWidget.PackEntry> {
 
     public PackListWidget(Minecraft client, int width, int height, int y, int itemHeight) {
         super(client, width, height, y, itemHeight);
@@ -29,7 +29,7 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
         super.addEntry(entry);
     }
 
-    public static class PackEntry extends ContainerObjectSelectionList.Entry<PackEntry> {
+    public static class PackEntry extends ObjectSelectionList.Entry<PackEntry> {
         private final Minecraft client;
         private final Pack pack;
         private final SwapConfig config;
@@ -78,12 +78,6 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
             }
         }
 
-        // Satisfy abstract method requirement (but we rely on render() below)
-        @Override
-        public void renderContent(GuiGraphics guiGraphics, int x, int y, boolean hovering, float partialTick) {
-        }
-
-        // Override render to get full coordinate access
         @Override
         public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
             guiGraphics.drawString(client.font, pack.getTitle(), left + 10, top + 2, 0xFFFFFF);
@@ -95,13 +89,16 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
         }
 
         @Override
-        public List<? extends GuiEventListener> children() {
-            return java.util.List.of(this.toggleButton);
+        public Component getNarration() {
+            return pack.getTitle();
         }
 
         @Override
-        public List<? extends NarratableEntry> narratables() {
-            return java.util.List.of(this.toggleButton);
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            if (this.toggleButton.mouseClicked(mouseX, mouseY, button)) {
+                return true;
+            }
+            return super.mouseClicked(mouseX, mouseY, button);
         }
     }
 }
