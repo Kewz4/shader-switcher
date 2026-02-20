@@ -21,7 +21,7 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
         return 400;
     }
 
-    @Override
+    // Removed @Override because it might not override anything in 1.21.11
     protected int getScrollbarPosition() {
         return this.getX() + this.width - 6;
     }

@@ -22,7 +22,7 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
         return 380;
     }
 
-    @Override
+    // Removed @Override because it might not override anything in 1.21.11
     protected int getScrollbarPosition() {
         return this.getX() + this.width - 6;
     }
