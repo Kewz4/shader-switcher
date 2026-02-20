@@ -9,9 +9,7 @@ import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.repository.PackSource;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class PackSelectionScreen extends Screen {
     private final Screen parent;
@@ -34,16 +32,12 @@ public class PackSelectionScreen extends Screen {
         PackRepository manager = Minecraft.getInstance().getResourcePackRepository();
         Collection<Pack> packs = manager.getAvailablePacks();
 
-        // Filter and add packs
         for (Pack pack : packs) {
-            // Filter out internal/mod packs
             if (shouldShowPack(pack)) {
-                // Use the public wrapper method
-                this.list.addEntryToWidget(new PackListWidget.PackEntry(this.minecraft, pack, config, shaderName));
+                this.list.addEntry(new PackListWidget.PackEntry(this.minecraft, pack, config, shaderName));
             }
         }
 
-        // Back Button
         this.addRenderableWidget(Button.builder(Component.literal("Back"), button -> {
             this.minecraft.setScreen(parent);
         }).bounds(this.width / 2 - 100, this.height - 25, 200, 20).build());
