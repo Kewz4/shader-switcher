@@ -8,7 +8,8 @@
   "environment": "client",
   "entrypoints": {
     "main": ["com.yourname.shaderpackswap.ShaderPackSwapMod"],
-    "client": ["com.yourname.shaderpackswap.ShaderPackSwapClient"]
+    "client": ["com.yourname.shaderpackswap.ShaderPackSwapClient"],
+    "modmenu": ["com.yourname.shaderpackswap.ModMenuIntegration"]
   },
   "mixins": [],
   "depends": {

@@ -20,6 +20,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modCompileOnly "maven.modrinth:iris:1.10.4+1.21.11-fabric"
+    modCompileOnly "maven.modrinth:modmenu:11.0.2"
 }
 
 java {
