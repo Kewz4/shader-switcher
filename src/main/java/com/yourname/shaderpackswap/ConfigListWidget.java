@@ -23,7 +23,7 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
 
     @Override
     protected int getScrollbarPosition() {
-        return super.getScrollbarPosition() + 32;
+        return this.getX() + this.width - 6;
     }
 
     public void addEntry(Entry entry) {
@@ -42,7 +42,7 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
 
         @Override
         public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
-            guiGraphics.drawCenteredString(Minecraft.getInstance().font, this.text, left + width / 2, top + height - 9, 0xFFFFFF);
+            guiGraphics.drawCenteredString(Minecraft.getInstance().font, this.text, left + width / 2, top + (height - 9) / 2, 0xFFFFFF);
         }
 
         @Override
@@ -80,14 +80,6 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
         @Override
         public List<? extends NarratableEntry> narratables() {
             return List.of(this.button);
-        }
-
-        @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (this.button.mouseClicked(mouseX, mouseY, button)) {
-                return true;
-            }
-            return super.mouseClicked(mouseX, mouseY, button);
         }
     }
 }

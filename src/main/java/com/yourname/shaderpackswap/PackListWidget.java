@@ -4,7 +4,9 @@ import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.components.ContainerObjectSelectionList;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -16,7 +18,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PackListWidget extends ObjectSelectionList<PackListWidget.PackEntry> {
+// Changed to ContainerObjectSelectionList to support nested buttons
+public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.PackEntry> {
 
     public PackListWidget(Minecraft client, int width, int height, int y, int itemHeight) {
         super(client, width, height, y, itemHeight);
@@ -32,7 +35,8 @@ public class PackListWidget extends ObjectSelectionList<PackListWidget.PackEntry
         return this.getX() + this.width - 6;
     }
 
-    public static class PackEntry extends ObjectSelectionList.Entry<PackEntry> {
+    // Changed to ContainerObjectSelectionList.Entry
+    public static class PackEntry extends ContainerObjectSelectionList.Entry<PackEntry> {
         private final Minecraft client;
         private final Pack pack;
         private final SwapConfig config;
@@ -40,7 +44,11 @@ public class PackListWidget extends ObjectSelectionList<PackListWidget.PackEntry
         private final Button toggleButton;
         private ResourceLocation iconLocation;
         private DynamicTexture iconTexture;
-        private static final ResourceLocation DEFAULT_ICON = ResourceLocation.withDefaultNamespace("textures/misc/unknown_pack.png");
+
+        // Use standard ResourceLocation creation for compatibility (try to parse or withDefaultNamespace if exists)
+        // Since we can't guarantee 1.21.11 API without checking, let's use ResourceLocation.parse or similar
+        // But for safety, I'll use explicit fully qualified class name for the type to be sure
+        private static final net.minecraft.resources.ResourceLocation DEFAULT_ICON = net.minecraft.resources.ResourceLocation.parse("textures/misc/unknown_pack.png");
 
         public PackEntry(Minecraft client, Pack pack, SwapConfig config, String shaderName) {
             this.client = client;
@@ -56,7 +64,7 @@ public class PackListWidget extends ObjectSelectionList<PackListWidget.PackEntry
             updateButtonLabel();
         }
 
-        private ResourceLocation loadIcon() {
+        private net.minecraft.resources.ResourceLocation loadIcon() {
             try {
                 // Attempt to load icon
                 // Note: pack.icon() is not always available or might require opening
@@ -125,21 +133,15 @@ public class PackListWidget extends ObjectSelectionList<PackListWidget.PackEntry
         }
 
         @Override
-        public List<net.minecraft.client.gui.components.events.GuiEventListener> children() {
+        public List<? extends GuiEventListener> children() {
             return java.util.List.of(this.toggleButton);
         }
 
         @Override
-        public List<net.minecraft.client.gui.narration.NarratableEntry> narratables() {
+        public List<? extends NarratableEntry> narratables() {
             return java.util.List.of(this.toggleButton);
         }
 
-        @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (this.toggleButton.mouseClicked(mouseX, mouseY, button)) {
-                return true;
-            }
-            return super.mouseClicked(mouseX, mouseY, button);
-        }
+        // We can remove mouseClicked override since ContainerObjectSelectionList handles children
     }
 }

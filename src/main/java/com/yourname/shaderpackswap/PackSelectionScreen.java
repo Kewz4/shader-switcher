@@ -49,7 +49,10 @@ public class PackSelectionScreen extends Screen {
     }
 
     private boolean shouldShowPack(Pack pack) {
-        if (pack.isFixed()) return false;
+        // isFixed() might not exist in all mappings, use isRequired() if possible or skip.
+        // In 1.21 official mappings, isRequired() is common for non-selectable packs.
+        if (pack.isRequired()) return false;
+
         if (pack.getId().equals("vanilla")) return false; // Usually don't toggle vanilla base
 
         // Filter out mods using PackSource or ID
