@@ -5,100 +5,66 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.server.packs.repository.PackSource;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class PackSelectionScreen extends Screen {
     private final Screen parent;
     private final SwapConfig config;
     private final String shaderName;
-    private final List<String> allPacks;
-    private int page = 0;
-    private static final int ITEMS_PER_PAGE = 8;
+    private PackListWidget list;
 
     public PackSelectionScreen(Screen parent, SwapConfig config, String shaderName) {
         super(Component.literal("Configure Packs: " + shaderName));
         this.parent = parent;
         this.config = config;
         this.shaderName = shaderName;
-        this.allPacks = new ArrayList<>(Minecraft.getInstance().getResourcePackRepository().getAvailableIds());
-        this.allPacks.remove("vanilla");
-        // Sort for easier finding
-        this.allPacks.sort(String::compareToIgnoreCase);
     }
 
     @Override
     protected void init() {
-        int y = 40;
-        int center = this.width / 2;
+        this.list = new PackListWidget(this.minecraft, this.width, this.height - 64, 32, 36);
+        this.addRenderableWidget(this.list);
 
-        int start = page * ITEMS_PER_PAGE;
-        int end = Math.min(start + ITEMS_PER_PAGE, allPacks.size());
+        PackRepository manager = Minecraft.getInstance().getResourcePackRepository();
+        Collection<Pack> packs = manager.getAvailablePacks();
 
-        for (int i = start; i < end; i++) {
-            String packId = allPacks.get(i);
-            String label = getLabel(packId);
-
-            this.addRenderableWidget(Button.builder(Component.literal(label), button -> {
-                cycleState(packId);
-                button.setMessage(Component.literal(getLabel(packId)));
-            }).bounds(center - 150, y, 300, 20).build());
-
-            y += 25;
+        // Filter and add packs
+        for (Pack pack : packs) {
+            // Filter out internal/mod packs
+            if (shouldShowPack(pack)) {
+                this.list.addEntry(new PackListWidget.PackEntry(this.minecraft, pack, config, shaderName));
+            }
         }
 
-        // Pagination
-        if (page > 0) {
-            this.addRenderableWidget(Button.builder(Component.literal("< Prev"), button -> {
-                page--;
-                this.rebuildWidgets();
-            }).bounds(center - 100, this.height - 50, 90, 20).build());
-        }
-        if (end < allPacks.size()) {
-            this.addRenderableWidget(Button.builder(Component.literal("Next >"), button -> {
-                page++;
-                this.rebuildWidgets();
-            }).bounds(center + 10, this.height - 50, 90, 20).build());
-        }
-
-        // Back
+        // Back Button
         this.addRenderableWidget(Button.builder(Component.literal("Back"), button -> {
             this.minecraft.setScreen(parent);
-        }).bounds(center - 100, this.height - 25, 200, 20).build());
+        }).bounds(this.width / 2 - 100, this.height - 25, 200, 20).build());
     }
 
-    private String getLabel(String packId) {
-        if (config.getPacksToEnable(shaderName).contains(packId)) {
-             return packId + ": [ENABLED]";
-        } else if (config.getPacksToDisable(shaderName).contains(packId)) {
-             return packId + ": [DISABLED]";
-        } else {
-             return packId + ": [DEFAULT]";
-        }
-    }
+    private boolean shouldShowPack(Pack pack) {
+        if (pack.isFixed()) return false;
+        if (pack.getId().equals("vanilla")) return false; // Usually don't toggle vanilla base
 
-    private void cycleState(String packId) {
-        List<String> toEnable = config.getPacksToEnable(shaderName);
-        List<String> toDisable = config.getPacksToDisable(shaderName);
+        // Filter out mods using PackSource or ID
+        // PackSource.BUILT_IN usually implies mod resources
+        if (pack.getPackSource() == PackSource.BUILT_IN) return false;
 
-        if (toEnable.contains(packId)) {
-            // Enabled -> Disabled
-            toEnable.remove(packId);
-            toDisable.add(packId);
-        } else if (toDisable.contains(packId)) {
-            // Disabled -> Default
-            toDisable.remove(packId);
-        } else {
-            // Default -> Enabled
-            toEnable.add(packId);
-        }
+        // Extra check for common mod indicators if PackSource isn't enough
+        if (pack.getId().equals("fabric") || pack.getId().equals("modmenu")) return false;
+
+        return true;
     }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFF);
-        guiGraphics.drawCenteredString(this.font, "Page " + (page + 1), this.width / 2, this.height - 70, 0xAAAAAA);
+        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
     }
 }
