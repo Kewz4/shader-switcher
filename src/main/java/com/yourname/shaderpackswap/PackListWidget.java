@@ -29,18 +29,29 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
         super.addEntry(entry);
     }
 
+    // Public wrappers
+    public int getRowTopAt(int index) {
+        return super.getRowTop(index);
+    }
+
+    public int getRowLeftAt() {
+        return super.getRowLeft();
+    }
+
     public static class PackEntry extends ContainerObjectSelectionList.Entry<PackEntry> {
         private final Minecraft client;
         private final Pack pack;
         private final SwapConfig config;
         private final String shaderName;
         private final Button toggleButton;
+        private final PackListWidget parent;
 
-        public PackEntry(Minecraft client, Pack pack, SwapConfig config, String shaderName) {
+        public PackEntry(Minecraft client, Pack pack, SwapConfig config, String shaderName, PackListWidget parent) {
             this.client = client;
             this.pack = pack;
             this.config = config;
             this.shaderName = shaderName;
+            this.parent = parent;
 
             this.toggleButton = Button.builder(Component.literal(""), button -> {
                 cycleState();
@@ -80,12 +91,16 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
 
         @Override
         public void renderContent(GuiGraphics guiGraphics, int mouseX, int mouseY, boolean hovering, float partialTick) {
-            // Assumed matrix translation
-            guiGraphics.drawString(client.font, pack.getTitle(), 10, 2, 0xFFFFFF);
-            guiGraphics.drawString(client.font, pack.getDescription(), 10, 14, 0x888888);
+            int index = parent.children().indexOf(this);
+            int top = parent.getRowTopAt(index);
+            int left = parent.getRowLeftAt();
+            int width = parent.getRowWidth();
 
-            this.toggleButton.setX(275);
-            this.toggleButton.setY(8);
+            guiGraphics.drawString(client.font, pack.getTitle(), left + 10, top + 2, 0xFFFFFF);
+            guiGraphics.drawString(client.font, pack.getDescription(), left + 10, top + 14, 0x888888);
+
+            this.toggleButton.setX(left + width - 105);
+            this.toggleButton.setY(top + 8); // Center roughly
             this.toggleButton.render(guiGraphics, mouseX, mouseY, partialTick);
         }
 

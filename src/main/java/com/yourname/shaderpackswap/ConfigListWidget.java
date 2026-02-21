@@ -14,13 +14,8 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
 
     public ConfigListWidget(Minecraft client, int width, int height, int y, int itemHeight) {
         super(client, width, height, y, itemHeight);
-        // Attempt to set row width if possible, or rely on defaults.
-        // In 1.21, layout might be different.
-        // If the list is blank, it might be 0 width.
-        // We can try to add entries and see.
     }
 
-    // Define without @Override to act as getter if supported or property
     public int getRowWidth() {
         return 400;
     }
@@ -33,21 +28,36 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
         super.addEntry(entry);
     }
 
+    // Public wrappers for protected methods to allow entries to calculate their position
+    public int getRowTopAt(int index) {
+        return super.getRowTop(index);
+    }
+
+    public int getRowLeftAt() {
+        return super.getRowLeft();
+    }
+
     public abstract static class Entry extends ContainerObjectSelectionList.Entry<Entry> {
     }
 
     public static class CategoryEntry extends Entry {
         private final Component text;
+        private final ConfigListWidget parent;
 
-        public CategoryEntry(Component text) {
+        public CategoryEntry(Component text, ConfigListWidget parent) {
             this.text = text;
+            this.parent = parent;
         }
 
         @Override
         public void renderContent(GuiGraphics guiGraphics, int mouseX, int mouseY, boolean hovering, float partialTick) {
-            // Assume matrix translated to entry position.
-            // Render text centered relative to assumed row width (400)
-            guiGraphics.drawCenteredString(Minecraft.getInstance().font, this.text, 200, 2, 0xFFFFFF);
+            int index = parent.children().indexOf(this);
+            int top = parent.getRowTopAt(index);
+            int left = parent.getRowLeftAt();
+            int width = parent.getRowWidth();
+
+            // Centered text
+            guiGraphics.drawCenteredString(Minecraft.getInstance().font, this.text, left + width / 2, top + 2, 0xFFFFFF);
         }
 
         @Override
@@ -63,8 +73,10 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
 
     public static class ProfileEntry extends Entry {
         private final Button button;
+        private final ConfigListWidget parent;
 
-        public ProfileEntry(Component text, Button.OnPress onPress) {
+        public ProfileEntry(Component text, Button.OnPress onPress, ConfigListWidget parent) {
+            this.parent = parent;
             this.button = Button.builder(text, onPress)
                     .bounds(0, 0, 260, 20)
                     .build();
@@ -72,9 +84,13 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
 
         @Override
         public void renderContent(GuiGraphics guiGraphics, int mouseX, int mouseY, boolean hovering, float partialTick) {
-            // Relative positioning
-            this.button.setX(70); // 400/2 - 260/2 = 70
-            this.button.setY(0);
+            int index = parent.children().indexOf(this);
+            int top = parent.getRowTopAt(index);
+            int left = parent.getRowLeftAt();
+            int width = parent.getRowWidth();
+
+            this.button.setX(left + (width - this.button.getWidth()) / 2);
+            this.button.setY(top);
             this.button.render(guiGraphics, mouseX, mouseY, partialTick);
         }
 

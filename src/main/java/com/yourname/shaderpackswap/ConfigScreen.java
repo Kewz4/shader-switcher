@@ -30,31 +30,31 @@ public class ConfigScreen extends Screen {
         this.addRenderableWidget(this.list);
 
         // Global Category
-        this.list.addEntryToWidget(new ConfigListWidget.CategoryEntry(Component.literal("§lGlobal Settings").withStyle(style -> style.withBold(true))));
+        this.list.addEntryToWidget(new ConfigListWidget.CategoryEntry(Component.literal("§lGlobal Settings").withStyle(style -> style.withBold(true)), this.list));
 
         this.list.addEntryToWidget(new ConfigListWidget.ProfileEntry(Component.literal("Global: Shaders OFF"), button -> {
             this.minecraft.setScreen(new PackSelectionScreen(this, config, SwapConfig.SHADERS_OFF));
-        }));
+        }, this.list));
 
         this.list.addEntryToWidget(new ConfigListWidget.ProfileEntry(Component.literal("Global: Shaders ON"), button -> {
             this.minecraft.setScreen(new PackSelectionScreen(this, config, SwapConfig.SHADERS_ON_GLOBAL));
-        }));
+        }, this.list));
 
         // Spacer
-        this.list.addEntryToWidget(new ConfigListWidget.CategoryEntry(Component.literal("")));
+        this.list.addEntryToWidget(new ConfigListWidget.CategoryEntry(Component.literal(""), this.list));
 
         // Shaders Category
-        this.list.addEntryToWidget(new ConfigListWidget.CategoryEntry(Component.literal("§lShader Specific Settings").withStyle(style -> style.withBold(true))));
-        this.list.addEntryToWidget(new ConfigListWidget.CategoryEntry(Component.literal("§7(Overrides Global Settings)")));
+        this.list.addEntryToWidget(new ConfigListWidget.CategoryEntry(Component.literal("§lShader Specific Settings").withStyle(style -> style.withBold(true)), this.list));
+        this.list.addEntryToWidget(new ConfigListWidget.CategoryEntry(Component.literal("§7(Overrides Global Settings)"), this.list));
 
         List<String> shaders = detectShaders();
         if (shaders.isEmpty()) {
-            this.list.addEntryToWidget(new ConfigListWidget.CategoryEntry(Component.literal("No shaders detected in shaderpacks folder.")));
+            this.list.addEntryToWidget(new ConfigListWidget.CategoryEntry(Component.literal("No shaders detected in shaderpacks folder."), this.list));
         } else {
             for (String shader : shaders) {
                 this.list.addEntryToWidget(new ConfigListWidget.ProfileEntry(Component.literal(shader), button -> {
                     this.minecraft.setScreen(new PackSelectionScreen(this, config, shader));
-                }));
+                }, this.list));
             }
         }
 
@@ -80,7 +80,6 @@ public class ConfigScreen extends Screen {
                 try (Stream<Path> stream = Files.list(shaderPacksDir)) {
                      stream.forEach(path -> {
                          String name = path.getFileName().toString();
-                         // Simple filter for zip/folders, ignore meta files
                          if ((name.endsWith(".zip") || Files.isDirectory(path)) && !name.startsWith(".")) {
                              list.add(name);
                          }
