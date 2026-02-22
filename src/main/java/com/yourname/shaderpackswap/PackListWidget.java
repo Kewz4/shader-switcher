@@ -96,11 +96,17 @@ public class PackListWidget extends ContainerObjectSelectionList<PackListWidget.
             int left = parent.getRowLeftAt();
             int width = parent.getRowWidth();
 
+            // Fix: Push pose and translate Z to ensure text renders above list background
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0, 0, 1);
+
             guiGraphics.drawString(client.font, pack.getTitle(), left + 10, top + 2, 0xFFFFFF);
             guiGraphics.drawString(client.font, pack.getDescription(), left + 10, top + 14, 0x888888);
 
+            guiGraphics.pose().popPose();
+
             this.toggleButton.setX(left + width - 105);
-            this.toggleButton.setY(top + 8); // Center roughly
+            this.toggleButton.setY(top + 8);
             this.toggleButton.render(guiGraphics, mouseX, mouseY, partialTick);
         }
 

@@ -28,7 +28,6 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
         super.addEntry(entry);
     }
 
-    // Public wrappers for protected methods to allow entries to calculate their position
     public int getRowTopAt(int index) {
         return super.getRowTop(index);
     }
@@ -56,8 +55,13 @@ public class ConfigListWidget extends ContainerObjectSelectionList<ConfigListWid
             int left = parent.getRowLeftAt();
             int width = parent.getRowWidth();
 
-            // Centered text
+            // Fix: Push pose and translate Z to ensure text renders above list background
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0, 0, 1);
+
             guiGraphics.drawCenteredString(Minecraft.getInstance().font, this.text, left + width / 2, top + 2, 0xFFFFFF);
+
+            guiGraphics.pose().popPose();
         }
 
         @Override
